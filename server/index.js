@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var express_1 = __importDefault(require("express"));
 var mysql2_1 = __importDefault(require("mysql2"));
-var app = (0, express_1.default)();
+var app = express_1.default();
 //mysql setting
 var connection = mysql2_1.default.createConnection({
     host: 'localhost',
