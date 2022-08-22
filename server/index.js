@@ -43,11 +43,10 @@ app.use(function (req, res, next) {
 });
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+var murmurs_1 = __importDefault(require("./router/murmurs"));
 // Get example
 var router = express_1.default.Router();
-router.get('/api/getTest', function (req, res) {
-    res.send(req.query);
-});
+app.use('/api/murmurs', murmurs_1.default);
 //Post example
 router.post('/api/postTest', function (req, res) {
     res.send({ hello: 'world' });

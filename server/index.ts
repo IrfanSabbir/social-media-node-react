@@ -23,7 +23,7 @@ connection.connect(function(err) {
     if (err) throw err;
     console.log("Table created");
   });
-
+  
   let sql_follow: string = `CREATE TABLE IF NOT EXISTS follow\
       (id int NOT NULL AUTO_INCREMENT primary key,\
       follow_by int NOT NULL,\
@@ -49,12 +49,12 @@ app.use((req, res, next) => {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
+
+import murmursRoute from './router/murmurs';
 // Get example
 const router: express.Router = express.Router()
 
-router.get('/api/getTest', (req: Request, res: Response) => {
-  res.send(req.query)
-})
+app.use('/api/murmurs', murmursRoute);
 
 //Post example
 router.post('/api/postTest', (req: Request, res: Response) => {
