@@ -26,17 +26,26 @@ connection.connect(function(err) {
   
   let sql_follow: string = `CREATE TABLE IF NOT EXISTS follow\
       (id int NOT NULL AUTO_INCREMENT primary key,\
-      follow_by int NOT NULL,\
+      followed_to int NOT NULL,\
       followed_by int NOT NULL)`;
   connection.query(sql_follow, function (err, result) {
     if (err) throw err;
     console.log("Table created");
   });
   
-  // connection.query('SELECT * FROM murmurs;', function (err, result) {
-  //   if (err) throw err;
-  //   console.log("Result: " + JSON.stringify(result, null, 2));
-  // });
+  let sql_like: string = `CREATE TABLE IF NOT EXISTS like_murmurs\
+    (id int NOT NULL AUTO_INCREMENT primary key,\
+    user_id int NOT NULL,\
+    post_id int NOT NULL)`;
+  connection.query(sql_like, function (err, result) {
+  if (err) throw err;
+  console.log("Table created");
+  });
+  
+  connection.query('SELECT * FROM like_murmurs;', function (err, result) {
+    if (err) throw err;
+    console.log("Result: " + JSON.stringify(result, null, 2));
+  });
 });
 
 //cors setting
