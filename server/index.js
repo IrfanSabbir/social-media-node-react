@@ -3,6 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+require("dotenv/config");
 var express_1 = __importDefault(require("express"));
 var mysql2_1 = __importDefault(require("mysql2"));
 var app = express_1.default();
@@ -36,11 +37,10 @@ connection.connect(function (err) {
             throw err;
         console.log("Table created");
     });
-    connection.query('SELECT * FROM like_murmurs;', function (err, result) {
-        if (err)
-            throw err;
-        console.log("Result: " + JSON.stringify(result, null, 2));
-    });
+    // connection.query('SELECT * FROM user;', function (err, result) {
+    //   if (err) throw err;
+    //   console.log("Result: " + JSON.stringify(result, null, 2));
+    // });
 });
 //cors setting
 app.use(function (req, res, next) {
@@ -51,9 +51,11 @@ app.use(function (req, res, next) {
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
 var murmurs_1 = __importDefault(require("./router/murmurs"));
+var user_1 = __importDefault(require("./router/user"));
 // Get example
 var router = express_1.default.Router();
 app.use('/api/murmurs', murmurs_1.default);
+app.use('/api/me', user_1.default);
 //Post example
 router.post('/api/postTest', function (req, res) {
     res.send({ hello: 'world' });

@@ -2,7 +2,7 @@ import { Request, Response, RequestHandler } from 'express';
 import { RowDataPacket, FieldPacket, OkPacket } from "mysql2"
 import connection from '../config/db_connection';
 
-interface IMurmursProps extends RowDataPacket {
+export interface IMurmursProps extends RowDataPacket {
   id?: number,
   text?: string,
   creator?: string,

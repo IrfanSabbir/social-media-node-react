@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import express, { Express, Request, Response }  from 'express'
 import mysql from 'mysql2'
 const app: Express = express();
@@ -41,11 +42,12 @@ connection.connect(function(err) {
   if (err) throw err;
   console.log("Table created");
   });
+
   
-  connection.query('SELECT * FROM like_murmurs;', function (err, result) {
-    if (err) throw err;
-    console.log("Result: " + JSON.stringify(result, null, 2));
-  });
+  // connection.query('SELECT * FROM user;', function (err, result) {
+  //   if (err) throw err;
+  //   console.log("Result: " + JSON.stringify(result, null, 2));
+  // });
 });
 
 //cors setting
@@ -60,10 +62,13 @@ app.use(express.urlencoded({ extended: true }))
 
 
 import murmursRoute from './router/murmurs';
+import userRoute from './router/user';
 // Get example
 const router: express.Router = express.Router()
 
 app.use('/api/murmurs', murmursRoute);
+app.use('/api/me', userRoute);
+
 
 //Post example
 router.post('/api/postTest', (req: Request, res: Response) => {
