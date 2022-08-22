@@ -24,16 +24,23 @@ connection.connect(function (err) {
             throw err;
         console.log("Table created");
     });
-    var sql_follow = "CREATE TABLE IF NOT EXISTS follow      (id int NOT NULL AUTO_INCREMENT primary key,      follow_by int NOT NULL,      followed_by int NOT NULL)";
+    var sql_follow = "CREATE TABLE IF NOT EXISTS follow      (id int NOT NULL AUTO_INCREMENT primary key,      followed_to int NOT NULL,      followed_by int NOT NULL)";
     connection.query(sql_follow, function (err, result) {
         if (err)
             throw err;
         console.log("Table created");
     });
-    // connection.query('SELECT * FROM murmurs;', function (err, result) {
-    //   if (err) throw err;
-    //   console.log("Result: " + JSON.stringify(result, null, 2));
-    // });
+    var sql_like = "CREATE TABLE IF NOT EXISTS like_murmurs    (id int NOT NULL AUTO_INCREMENT primary key,    user_id int NOT NULL,    post_id int NOT NULL)";
+    connection.query(sql_like, function (err, result) {
+        if (err)
+            throw err;
+        console.log("Table created");
+    });
+    connection.query('SELECT * FROM like_murmurs;', function (err, result) {
+        if (err)
+            throw err;
+        console.log("Result: " + JSON.stringify(result, null, 2));
+    });
 });
 //cors setting
 app.use(function (req, res, next) {
@@ -43,11 +50,10 @@ app.use(function (req, res, next) {
 });
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
+var murmurs_1 = __importDefault(require("./router/murmurs"));
 // Get example
 var router = express_1.default.Router();
-router.get('/api/getTest', function (req, res) {
-    res.send(req.query);
-});
+app.use('/api/murmurs', murmurs_1.default);
 //Post example
 router.post('/api/postTest', function (req, res) {
     res.send({ hello: 'world' });
