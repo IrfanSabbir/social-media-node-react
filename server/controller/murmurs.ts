@@ -1,5 +1,5 @@
 import { Request, Response, RequestHandler } from 'express';
-import { RowDataPacket, FieldPacket, OkPacket } from "mysql2"
+import { FieldPacket, OkPacket } from "mysql2"
 import connection from '../config/db_connection';
 
 import { IFollowProps, ILikeProps, IFullLikeProps, IMurmursProps } from '../model';

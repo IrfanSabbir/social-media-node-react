@@ -1,23 +1,10 @@
 import { Request, Response, RequestHandler } from 'express';
-import { RowDataPacket, FieldPacket, OkPacket } from "mysql2";
+import { FieldPacket, OkPacket } from "mysql2";
 import jwt, { SignOptions, Secret } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import connection from '../config/db_connection';
-import { IMurmursProps } from '../model';
-
-interface IUserProps extends RowDataPacket {
-  id?: number,
-  name?: string,
-  email?: string,
-  password?: string
-};
-
-interface IFollowProps extends RowDataPacket {
-  id?: number,
-  followed_by?: string,
-  followed_to?: string
-};
+import { IMurmursProps, IFollowProps, IUserProps  } from '../model';
 
 export const signup: RequestHandler = async (req: Request, res: Response) => {
   try {
