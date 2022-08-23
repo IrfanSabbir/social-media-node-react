@@ -23,19 +23,17 @@ connection.connect(function (err) {
     connection.query(sql_murmurs, function (err, result) {
         if (err)
             throw err;
-        console.log("Table created");
     });
     var sql_follow = "CREATE TABLE IF NOT EXISTS follow      (id int NOT NULL AUTO_INCREMENT primary key,      followed_to int NOT NULL,      followed_by int NOT NULL)";
     connection.query(sql_follow, function (err, result) {
         if (err)
             throw err;
-        console.log("Table created");
+        // console.log('created')
     });
     var sql_like = "CREATE TABLE IF NOT EXISTS like_murmurs    (id int NOT NULL AUTO_INCREMENT primary key,    user_id int NOT NULL,    post_id int NOT NULL)";
     connection.query(sql_like, function (err, result) {
         if (err)
             throw err;
-        console.log("Table created");
     });
     // connection.query('SELECT * FROM user;', function (err, result) {
     //   if (err) throw err;

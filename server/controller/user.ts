@@ -4,13 +4,19 @@ import jwt, { SignOptions, Secret } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 
 import connection from '../config/db_connection';
-import { IMurmursProps } from './murmurs';
+import { IMurmursProps } from '../model';
 
 interface IUserProps extends RowDataPacket {
   id?: number,
   name?: string,
   email?: string,
   password?: string
+};
+
+interface IFollowProps extends RowDataPacket {
+  id?: number,
+  followed_by?: string,
+  followed_to?: string
 };
 
 export const signup: RequestHandler = async (req: Request, res: Response) => {
@@ -94,10 +100,11 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
 export const userProfile: RequestHandler = async (req: Request, res: Response) => {
   try {
     await connection.connect();
-    const id: string = req.body?.authUserId;
-  
 
-    const userQuery: string = `SELECT * FROM user WHERE id = '${id}'`;
+    const id: string = req?.query['otherUser'] ? req?.query['otherUser'] : req.body?.authUserId;
+    // req?.query['userId']  will be provided when looking for other user details
+
+    const userQuery: string = `SELECT id, name, follow_count, followed_count FROM user WHERE id = '${id}'`;
     const [user, ] : [IUserProps[], FieldPacket[]] = await connection.promise().execute<IUserProps[]>(userQuery, []);
     const user_info = user[0];
     delete user_info.password;
@@ -140,6 +147,52 @@ export const otherUsers: RequestHandler = async (req: Request, res: Response) =>
     res.status(404).send({
       error,
       message: "User Info not found"
+    })
+  }
+};
+
+
+export const followUsers: RequestHandler = async (req: Request, res: Response) => {
+  try {
+    await connection.connect();
+    const followed_by: string = req.body?.authUserId;
+    const followed_to: string = req.params?.followed_to;
+    console.log(followed_to, followed_by)
+    if(followed_by.toString() === followed_to.toString()) {
+      return res.status(400).send({
+        message: "Cant follow ownself"
+      })
+    }
+    
+    const existQuery: string = `SELECT id FROM follow WHERE followed_by = '${followed_by}' AND followed_to = '${followed_to}'`;
+    const [follow_exist, ] : [IFollowProps[], FieldPacket[]] = await connection.promise().execute<IFollowProps[]>(existQuery, []);
+
+    console.log(follow_exist)
+    if(follow_exist.length > 0) {
+      return res.status(200).send({
+        message: "Already Follwoing The User"
+      })
+    }
+
+    const insertQuery: string = `INSERT INTO follow (followed_by, followed_to) VALUES ('${followed_by}', '${followed_to}')`;
+    const followedToQuery: string = `UPDATE user SET followed_count = followed_count + 1 WHERE id = '${followed_to}'`;
+    const followedByQuery: string = `UPDATE user SET follow_count = follow_count + 1 WHERE id = '${followed_by}'`;
+
+    // const [rows, ]: [OkPacket, FieldPacket[]] = 
+    await Promise.all([
+      connection.promise().execute<OkPacket>(insertQuery),
+      connection.promise().execute<OkPacket>(followedToQuery),
+      connection.promise().execute<OkPacket>(followedByQuery)
+    ]);
+
+    res.status(200).send({
+      message: "Followed User"
+    })
+    
+  } catch (error) {
+    res.status(404).send({
+      error,
+      message: "Failed yo follow"
     })
   }
 };

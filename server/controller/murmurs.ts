@@ -2,28 +2,13 @@ import { Request, Response, RequestHandler } from 'express';
 import { RowDataPacket, FieldPacket, OkPacket } from "mysql2"
 import connection from '../config/db_connection';
 
-export interface IMurmursProps extends RowDataPacket {
-  id?: number,
-  text?: string,
-  creator?: string,
-  like_count?: number
-};
-
-interface ILikeProps extends RowDataPacket {
-  id?: number,
-};
-
-interface IFullLikeProps extends ILikeProps {
-  userId?: number,
-  post_id?: number,
-  name?: string,
-};
+import { IFollowProps, ILikeProps, IFullLikeProps, IMurmursProps } from '../model';
 
 export const createMurmurs: RequestHandler = async (req: Request, res: Response) => {
   try {
     await connection.connect();
     const text: string = req.body?.text;
-    const creator: number = +req.body?.creator;
+    const creator: string = req.body?.authUserId;
 
     const insertQry: string = `INSERT INTO murmurs (text, creator) VALUES ('${text}', '${creator}')`;
     const [rows, ]: [OkPacket, FieldPacket[]] = await connection.promise().execute<OkPacket>(insertQry);
@@ -45,14 +30,23 @@ export const getMurmurs: RequestHandler = async (req: Request, res: Response) =>
     await connection.connect();
     const limit: number = req?.query && req?.query?.limit ? +req?.query?.limit : 10;
     const skip: number = req?.query && req?.query?.skip ? +req?.query?.skip : 0;
+    const userId: string = req.body?.authUserId;
+    const type: string = req.params?.type; // list, creator
 
+    let folowerQuery: string;
+    let followers;
 
-    // GET THE ARRAY OF FOLLOWERS
-    const followers: number[] = [1, 2];
+    if(type === "list") {
+
+      folowerQuery = `SELECT id FROM follow WHERE followed_by = '${userId}'`;
+      const [followers_list, ] : [IFollowProps[], FieldPacket[]] = await connection.promise().execute<IFollowProps[]>(folowerQuery, []);
+      followers = followers_list.map((f:IFollowProps) => f.id );
+    }
+
     const insertQry: string = `SELECT m.*, u.name\
         FROM murmurs m\
         JOIN user u ON u.id = m.creator\ 
-        WHERE creator IN (${followers})\
+        WHERE ${type === "creator" ? `creator = '${userId}'` : `creator IN (${followers}) OR creator = '${userId}'`}\
         ORDER BY id DESC LIMIT ${limit} OFFSET ${skip}`;
 
     const [rows, ] : [IMurmursProps[], FieldPacket[]] = await connection.promise().execute<IMurmursProps[]>(insertQry, []);
@@ -69,6 +63,7 @@ export const getMurmurs: RequestHandler = async (req: Request, res: Response) =>
     })
   }
 };
+
 
 export const getMurmursDetails: RequestHandler = async (req: Request, res: Response) => {
   try {
@@ -104,11 +99,20 @@ export const getMurmursDetails: RequestHandler = async (req: Request, res: Respo
 
 export const likeOrDislikeMurmurs: RequestHandler = async (req: Request, res: Response) => {
   try {
-    console.log("here")
+
     await connection.connect();
     const murmurId: string = req.params.murmurId;
-    //todo get userId from auth header token
-    const userId: number = 2;
+    const userId: string = req.body?.authUserId;
+
+    const existQueryCreator: string = `SELECT id FROM murmurs WHERE creator = '${userId}' AND id = '${murmurId}'`;
+    const [ownMurmurs, ] : [IMurmursProps[], FieldPacket[]] = await connection.promise().execute<IMurmursProps[]>(existQueryCreator, []);
+
+    if (ownMurmurs?.length > 0) {
+      return res.status(200).send({
+        message: "You can't like own murmur"
+      })
+    }
+
     const existQuery: string = `SELECT id FROM like_murmurs WHERE user_id = '${userId}' AND post_id = '${murmurId}'`;
     const [like_exist, ] : [ILikeProps[], FieldPacket[]] = await connection.promise().execute<IMurmursProps[]>(existQuery, []);
 
@@ -140,13 +144,15 @@ export const likeOrDislikeMurmurs: RequestHandler = async (req: Request, res: Re
 export const deleteMurmurs: RequestHandler = async (req: Request, res: Response) => {
   try {
     await connection.connect();
+    const userId: string = req.body?.authUserId;
     const murmurId = req.params.murmurId
-    console.log(req.params)
-    const insertQry: string = `DELETE FROM murmurs WHERE id = '${murmurId}'`;
+
+    const insertQry: string = `DELETE FROM murmurs WHERE id = '${murmurId}' AND creator = '${userId}'`;
     const [rows]: [OkPacket, FieldPacket[]] = await connection.promise().execute(insertQry);
+
     res.status(200).send({
       data: rows,
-      message: "Murmurs deleted"
+      message: rows && rows.affectedRows === 0 ? "you dont have permission to delete this murmurs" : "Murmurs deleted"
     })
     
   } catch (error) {

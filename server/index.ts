@@ -22,7 +22,6 @@ connection.connect(function(err) {
       creator int NOT NULL)`;
   connection.query(sql_murmurs, function (err, result) {
     if (err) throw err;
-    console.log("Table created");
   });
   
   let sql_follow: string = `CREATE TABLE IF NOT EXISTS follow\
@@ -31,7 +30,7 @@ connection.connect(function(err) {
       followed_by int NOT NULL)`;
   connection.query(sql_follow, function (err, result) {
     if (err) throw err;
-    console.log("Table created");
+    // console.log('created')
   });
   
   let sql_like: string = `CREATE TABLE IF NOT EXISTS like_murmurs\
@@ -40,10 +39,9 @@ connection.connect(function(err) {
     post_id int NOT NULL)`;
   connection.query(sql_like, function (err, result) {
   if (err) throw err;
-  console.log("Table created");
   });
 
-  
+
   // connection.query('SELECT * FROM user;', function (err, result) {
   //   if (err) throw err;
   //   console.log("Result: " + JSON.stringify(result, null, 2));

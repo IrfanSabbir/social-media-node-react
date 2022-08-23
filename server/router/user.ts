@@ -3,18 +3,20 @@ import {
   signup,
   login,
   userProfile,
-  otherUsers
+  otherUsers,
+  followUsers
 } from "../controller/user";
 
 import { auth_check } from '../middleware/auth_check';
 
 const router = Router();
 
-router.get("/details", auth_check, userProfile);
+router.get("/profile", auth_check, userProfile);
 router.get("/users", auth_check, otherUsers);
 
 router.post("/signup", signup);
 router.post("/login", login);
 
+router.post("/follow/:followed_to", auth_check, followUsers);
 
 export default router;
