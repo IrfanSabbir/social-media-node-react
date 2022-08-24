@@ -36,7 +36,8 @@ export const signup: RequestHandler = async (req: Request, res: Response) => {
 
     res.status(200).send({
       auth: token,
-      message: "User created"
+      message: "User created",
+      userId: rows.insertId
     })
     
   } catch (error) {
@@ -73,7 +74,8 @@ export const login: RequestHandler = async (req: Request, res: Response) => {
 
     res.status(200).send({
       auth: token,
-      message: "User Loged in"
+      message: "User Loged in",
+      userId: user_exist[0]['id']
     })
     
   } catch (error) {
