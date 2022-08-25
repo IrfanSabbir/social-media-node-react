@@ -2,7 +2,7 @@ import { FC, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import swal from "sweetalert";
-import { likmurmurs } from "../../api/timeline";
+import { deleteMurmur, likmurmurs } from "../../api/timeline";
 import { 
   murmursListProps 
 } from "../../model";
@@ -20,7 +20,8 @@ const MurmurItem: FC<propsType> = ({
   userId,
   updateRefresh,
   token,
-  type
+  type,
+
 }) => {
   const [error, setError] = useState<string>("");
   const [noError, setNoError] = useState<string>("");
@@ -37,8 +38,16 @@ const MurmurItem: FC<propsType> = ({
     }
   };
 
+  const deleteMurmurs = async () => {
+    const result = await deleteMurmur(murmur.id, token);
+    if (result.error) {
+      setError("Something went wrong")
+    } else {
+      setNoError(result.data)
+      updateRefresh();
+    }
+  };
   useEffect(() => {
-    console.log()
     if (error || noError) {
       swal({
         text: error || noError,
@@ -58,6 +67,9 @@ const MurmurItem: FC<propsType> = ({
           <h5 className="card-text">{murmur.text}</h5>
           {userId !== murmur.creator &&
             <p className="btn btn-success" onClick={likeMumur}>{murmur.like_count} Like</p>
+          }&nbsp;
+          {userId == murmur.creator &&
+            <p className="btn btn-warning" onClick={deleteMurmurs}>Delete</p>
           }&nbsp;
           {type !== "details" && <p className="btn btn-info" onClick={() => navigate(`/details/${murmur.id}`)}>Details</p>}
         </div>

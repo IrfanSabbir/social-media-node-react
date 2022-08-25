@@ -2,13 +2,13 @@ import { FC, useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
 
 import swal from "sweetalert";
-import { likmurmurs } from "../../api/timeline";
+import { followUser } from "../../api/user";
 import { 
-  murmursListProps 
+  userProps 
 } from "../../model";
 
 type propsType = {
-  murmur: murmursListProps,
+  user: userProps,
   userId: string,
   updateRefresh(): void,
   token: string,
@@ -16,7 +16,7 @@ type propsType = {
 }
 
 const MurmurItem: FC<propsType> = ({
-  murmur,
+  user,
   userId,
   updateRefresh,
   token,
@@ -27,8 +27,8 @@ const MurmurItem: FC<propsType> = ({
 
   const navigate = useNavigate();
   
-  const likeMumur = async () => {
-    const result = await likmurmurs(murmur.id, token);
+  const followUserHandler = async () => {
+    const result = await followUser(user.id, token);
     if (result.error) {
       setError("Something went wrong")
     } else {
@@ -38,7 +38,6 @@ const MurmurItem: FC<propsType> = ({
   };
 
   useEffect(() => {
-    console.log()
     if (error || noError) {
       swal({
         text: error || noError,
@@ -54,12 +53,14 @@ const MurmurItem: FC<propsType> = ({
     <div className="container">
       <div className="card" style={{width: "18rem"}}>
         <div className="card-body">
-          <p className="card-title">Posted By {murmur.name}</p>
-          <h5 className="card-text">{murmur.text}</h5>
-          {userId !== murmur.creator &&
-            <p className="btn btn-success" onClick={likeMumur}>{murmur.like_count} Like</p>
+          <h5 className="card-title">{user.name}</h5>
+          <p className="card-title">Followers {user.followed_count}</p>
+          <p className="card-title">Following {user.follow_count}</p>
+
+          {userId.toString() !== user.id?.toString() &&
+            <p className="btn btn-success" onClick={followUserHandler}>Follow</p>
           }&nbsp;
-          {type !== "details" && <p className="btn btn-info" onClick={() => navigate(`/details/${murmur.id}`)}>Details</p>}
+          {type !== "details" && <p className="btn btn-info" onClick={() => navigate(`/user_details/${user.id}`)}>Details</p>}
         </div>
       </div>
     </div>

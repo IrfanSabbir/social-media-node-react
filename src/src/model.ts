@@ -13,6 +13,7 @@ export type loggedUserProrps = {
 export type mumurInputProps = {
   type: string,
   token: string,
+  skip?:number
 }
 
 export type murmursListProps = {
@@ -41,3 +42,20 @@ export type murmursResProps = {
   data?: murmursListProps,
 }
 
+export type userProps = {
+  name?: string,
+  follow_count?: number,
+  followed_count?: number,
+  id?: number
+}
+
+export type usersResProps = {
+  error?: boolean,
+  data?: userProps,
+}
+
+
+export type userDetailsPorps = {
+  user?: userProps,
+  murmurs?: murmursListProps[]
+}

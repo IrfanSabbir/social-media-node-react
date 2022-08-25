@@ -1,5 +1,5 @@
 import React, { FC, useState, useEffect } from "react";
-import { mumurlist } from "../../api/timeline";
+import { createMurmurs, mumurlist } from "../../api/timeline";
 import { userState } from "../../atoms/user";
 import swal from "sweetalert";
 import { useRecoilState } from "recoil";
@@ -14,14 +14,18 @@ const Timeline: FC = () => {
   const [error, setError] = useState<string>("");
   const [refresh, setRefresh] = useState<number>(0);
   const [murmurs, setMurmurs] = useState<murmursListProps[] | any>([]);
-
+  const [text, setText] = useState<string>("");
+  const [limit, setLimit] = useState<number>(10);
+  const [skip, setSkip] = useState<number>(0);
+  const [current,setCurrent] = useState<number>(1);
   const [user, ] = useRecoilState(userState);
 
   const getMurmurlist = async () => {
 
     const mumurInputs: mumurInputProps = {
       type: 'list',
-      token: user.auth
+      token: user.auth,
+      skip: skip,
     }
     const res: murmursResProps = await mumurlist(mumurInputs);
 
@@ -32,6 +36,17 @@ const Timeline: FC = () => {
     }
   };
 
+  const createrMumur = async () => {
+
+    const res :{ error: boolean } = await createMurmurs(text ,user.auth);
+
+    if (res.error === true) {
+      setError("Couldnt load data.");
+    } else {
+      setText("");
+      getMurmurlist();
+    }
+  };
   const updateRefresh = () => setRefresh(refresh+1);
 
   useEffect(() => {
@@ -51,7 +66,12 @@ const Timeline: FC = () => {
 
   return (
     <div className="container">
-      <div className="row">
+      <div style={{ marginBottom: "30px", width: "70%", marginLeft: "15%", border: '2px solid grey', padding: "10px", textAlign: "center", borderRadius: "10px"}}>
+        <h5 className="card-text">Create New Murmurs</h5>
+        <textarea name="Text" cols={40} rows={5} value={text} onChange={(e) => setText(e.target.value)}/><br />
+        <p className={`btn btn-warning btn-lg ${!text && 'disabled'}`} onClick={createrMumur}>Post</p>
+      </div>
+      <div className="row mb-5">
         {
           murmurs && murmurs.map((murmur: murmursListProps, key: number) => (
             <div className="col-sm-4" key={key}>
@@ -65,6 +85,24 @@ const Timeline: FC = () => {
           ))
         }
        </div>
+      <button className="btn btn-warning"
+       disabled={current === 1 ? true: false}
+       onClick={() => {
+        setSkip(skip - limit);
+        setCurrent(current-1)
+        setRefresh(refresh+1);
+       }}>Previous</button>&nbsp;&nbsp;
+
+       <button className="btn btn-warning">{current}</button>&nbsp;&nbsp;
+
+       <button className="btn btn-warning" 
+       disabled={ murmurs.length >= 10 ? false : true}
+       onClick={() => {
+        setSkip(skip + limit);
+        setCurrent(current+1)
+        setRefresh(refresh+1);
+       }}>Next</button>&nbsp;
+      <br /><br />
     </div>
   );
 };

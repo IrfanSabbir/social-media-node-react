@@ -3,33 +3,27 @@ import { listofUsers } from "../../api/user";
 import { userState } from "../../atoms/user";
 import swal from "sweetalert";
 import { useRecoilState } from "recoil";
-import { 
-  murmursResProps,
-  mumurInputProps,
-  murmursListProps 
+import {
+  usersResProps,
+  userProps
 } from "../../model";
-import MurmurItem from '../../componets/Murmurs/Item'
+import UserDetails from '../../componets/Users/Item'
 
 const UsersList: FC = () => {
   const [error, setError] = useState<string>("");
   const [refresh, setRefresh] = useState<number>(0);
-  const [murmurs, setMurmurs] = useState<murmursListProps[] | any>([]);
+  const [usersList, setUsersList] = useState<userProps[] | any>([]);
 
   const [user, ] = useRecoilState(userState);
 
-  const getMurmurlist = async () => {
+  const getUserList = async () => {
 
-    const mumurInputs: mumurInputProps = {
-      type: 'list',
-      token: user.auth
-    }
-    const res: murmursResProps = await listofUsers(user.auth);
+    const res: usersResProps = await listofUsers(user.auth);
 
     if (res.error === true) {
       setError("Couldnt load data.");
     } else {
-      // setMurmurs(res?.data)
-      console.log(res?.data)
+      setUsersList(res?.data)
     }
   };
 
@@ -47,17 +41,17 @@ const UsersList: FC = () => {
   }, [error]);
 
   useEffect(() => {
-    getMurmurlist();
+    getUserList();
   }, [refresh]);
 
   return (
     <div className="container">
       <div className="row">
         {
-          murmurs && murmurs.map((murmur: murmursListProps, key: number) => (
+          usersList && usersList.map((userItem: userProps, key: number) => (
             <div className="col-sm-4" key={key}>
-              <MurmurItem
-                murmur={murmur}
+              <UserDetails
+                user={userItem}
                 userId={user.userId}
                 updateRefresh={updateRefresh}
                 token={user.auth}

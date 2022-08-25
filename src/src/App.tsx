@@ -10,6 +10,9 @@ import Signup from './container/Auth/Signup';
 import Timeline from './container/Timeline/Timeline';
 import Users from './container/Users/UsersList';
 import MurmursDetails from './container/Murmursdetails/MurmursDetails';
+import UsersDetails from './container/UserDetails/UserDetails';
+import Profile from './container/Profile/Profile';
+
 
 
 
@@ -44,7 +47,10 @@ function App() {
           : <Routes>
             <Route path="/timeline"  element={<Timeline />}/>
             <Route path="/users"  element={<Users />}/>
+            <Route path="/profile"  element={<Profile />}/>
+            <Route path="/user_details/:userId"  element={<UsersDetails />}/>
             <Route path="/details/:murmurId"  element={<MurmursDetails />}/>
+
           </Routes>
         }
       </Layout>
