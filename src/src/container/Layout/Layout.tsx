@@ -36,6 +36,7 @@ const Layout: FC<Props> = ({ children }) => {
             <NavLink className="nav-link" to="/profile">
               Profile
             </NavLink>
+          
             <p
               className="nav-link btn btn-link"
               onClick={() => {

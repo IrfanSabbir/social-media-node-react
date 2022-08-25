@@ -35,3 +35,21 @@ export const signUpser = async (name: string, email: string, password: string) =
     return { error: true  }
   }
 }
+
+
+export const listofUsers = async (token: string) => {
+  try {
+    const url = `${process.env.REACT_APP_USER_BASE_URL}/users`;
+
+    const res = await axios.get(url, {
+      headers: {
+        'Content-Type':'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    return { error : false, data: res.data.users }
+  } catch (error) {
+    console.log(error);
+    return { error: true  }
+  }
+}
