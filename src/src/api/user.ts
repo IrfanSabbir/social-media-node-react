@@ -52,6 +52,7 @@ export const listofUsers = async (token: string) => {
 }
 
 export const followUser = async (userId?: number, token?: string) => {
+  console.log(userId)
   try {
     const url = `${process.env.REACT_APP_USER_BASE_URL}/follow/${userId}`;
     const res = await axios.post(url, {data: ""}, {

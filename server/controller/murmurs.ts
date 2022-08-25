@@ -34,19 +34,22 @@ export const getMurmurs: RequestHandler = async (req: Request, res: Response) =>
     const type: string = req.params?.type; // list, creator
 
     let folowerQuery: string;
-    let followers;
+    let followers: (string | undefined)[] = [userId];
 
     if(type === "list") {
 
-      folowerQuery = `SELECT id FROM follow WHERE followed_by = '${userId}'`;
+      folowerQuery = `SELECT followed_to FROM follow WHERE followed_by = '${userId}'`;
       const [followers_list, ] : [IFollowProps[], FieldPacket[]] = await connection.promise().execute<IFollowProps[]>(folowerQuery, []);
-      followers = followers_list.map((f:IFollowProps) => f.id );
-    }
+      const list = followers_list.map((f:IFollowProps) => f.followed_to );
 
+      if(list.length > 0) {
+        followers = [...followers, ...list]
+      }
+    }
     const insertQry: string = `SELECT m.*, u.name\
         FROM murmurs m\
         JOIN user u ON u.id = m.creator\ 
-        WHERE ${type === "creator" ? `creator = '${userId}'` : `creator IN (${followers}) OR creator = '${userId}'`}\
+        WHERE ${type === "creator" ? `creator = '${userId}'` : `creator IN (${followers})`}\
         ORDER BY id DESC LIMIT ${limit} OFFSET ${skip}`;
 
     const [rows, ] : [IMurmursProps[], FieldPacket[]] = await connection.promise().execute<IMurmursProps[]>(insertQry, []);
